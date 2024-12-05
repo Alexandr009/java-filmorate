@@ -8,7 +8,6 @@ import ru.yandex.practicum.filmorate.validation.ValidationUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.util.Date;
 
 public class ValidationUtilsTest {

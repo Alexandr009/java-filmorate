@@ -19,7 +19,7 @@ public class UserController {
     private final Map<Integer, User> users = new HashMap<>();
 
     @GetMapping
-    public Collection<User> findAll(){
+    public Collection<User> findAll() {
         log.info(users.values().toString());
         return users.values();
     }
@@ -39,16 +39,16 @@ public class UserController {
     }
 
     @PutMapping
-    public User update(@RequestBody User user){
+    public User update(@RequestBody User user) {
         ValidationUtils.validateUser(user);
 
-        if (user.getId().toString() == "" || user.getId() == null){
+        if (user.getId().toString() == "" || user.getId() == null) {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
-        if (user.getName().isBlank()){
+        if (user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        if (users.containsKey(user.getId())){
+        if (users.containsKey(user.getId())) {
             User userOld = users.get(user.getId());
             userOld.setEmail(user.getEmail());
             userOld.setLogin(user.getLogin());

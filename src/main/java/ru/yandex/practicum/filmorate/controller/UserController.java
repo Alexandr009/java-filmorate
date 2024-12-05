@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.exception.ValidationException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.validation.ValidationUtils;
 
@@ -12,10 +11,12 @@ import java.text.ParseException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
 @Slf4j
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
     private final Map<Integer, User> users = new HashMap<>();
 
     @GetMapping
@@ -30,7 +31,7 @@ public class UserController {
         ValidationUtils.validateUser(user);
 
         user.setId((int) getNextId());
-        if (user.getName() == null){
+        if (user.getName() == null) {
             user.setName(user.getLogin());
         }
         users.put(user.getId(), user);
@@ -42,7 +43,7 @@ public class UserController {
     public User update(@RequestBody User user) {
         ValidationUtils.validateUser(user);
 
-        if (user.getId().toString() == "" || user.getId() == null) {
+        if (user.getId() == null || user.getId().toString().isBlank()) {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
         if (user.getName().isBlank()) {
@@ -59,7 +60,6 @@ public class UserController {
         }
         throw new NotFoundException("User с id = " + user.getId() + " не найден");
     }
-
 
     // вспомогательный метод для генерации идентификатора
     private long getNextId() {

@@ -54,7 +54,7 @@ public class FilmController {
             return oldFilm;
         }
 
-        throw new NotFoundException("Фильм с id = " + film.getId() + " не найден");
+        throw new NotFoundException(String.format("Фильм с id = %s не найден",film.getId()));
     }
 
     // вспомогательный метод для генерации идентификатора

@@ -58,7 +58,7 @@ public class UserController {
             log.info(String.valueOf(userOld));
             return userOld;
         }
-        throw new NotFoundException("User с id = " + user.getId() + " не найден");
+        throw new NotFoundException(String.format("User с id = %s не найден",user.getId()));
     }
 
     // вспомогательный метод для генерации идентификатора

@@ -1,69 +1,45 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.validation.ValidationUtils;
-
+import ru.yandex.practicum.filmorate.service.FilmService;
 import java.text.ParseException;
 import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
 
 @Slf4j
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    public final Map<Integer, Film> films = new HashMap<>();
+    //public final Map<Integer, Film> films = new HashMap<>();
+    @Autowired
+    public final FilmService filmService;
+
+    public FilmController(FilmService filmService) {
+        this.filmService = filmService;
+    }
 
     @GetMapping
     public Collection<Film> findAll() {
-        log.info(films.values().toString());
-        return films.values();
+        Collection<Film> listFilm = filmService.findAll();
+        log.info("findAll film finished - " + listFilm.toString());
+        return listFilm;
     }
 
     @PostMapping
     public Film create(@RequestBody Film film) throws ParseException {
-        log.info(String.valueOf(film));
-        ValidationUtils.validateFilm(film);
-
-        film.setId((int) this.getNextId());
-        films.put(film.getId(), film);
-        log.info(String.valueOf(film));
-        return film;
+        log.info("create film started - " + String.valueOf(film));
+        Film newFilm = filmService.create(film);
+        log.info("create film finished - " + String.valueOf(newFilm));
+        return newFilm;
     }
 
     @PutMapping
     public Film update(@RequestBody Film film) throws ParseException {
-        log.info(String.valueOf(film));
-        ValidationUtils.validateFilm(film);
-
-        if (film.getId() == null || film.getId().toString().equals("")) {
-            throw new ConditionsNotMetException("Id должен быть указан");
-        }
-
-        if (films.containsKey(film.getId())) {
-            Film oldFilm = films.get(film.getId());
-            oldFilm.setName(film.getName());
-            oldFilm.setDescription(film.getDescription());
-            oldFilm.setDuration(film.getDuration());
-            oldFilm.setReleaseDate(film.getReleaseDate());
-            log.info(String.valueOf(oldFilm));
-            return oldFilm;
-        }
-
-        throw new NotFoundException(String.format("Фильм с id = %s не найден",film.getId()));
-    }
-
-    // вспомогательный метод для генерации идентификатора
-    private long getNextId() {
-        long currentMaxId = films.keySet()
-                .stream()
-                .mapToLong(id -> id)
-                .max()
-                .orElse(0);
-        return ++currentMaxId;
+        log.info("update film started - " + String.valueOf(film));
+        Film newFilm = filmService.update(film);
+        log.info("update film finished - " + String.valueOf(newFilm));
+        return newFilm;
     }
 }

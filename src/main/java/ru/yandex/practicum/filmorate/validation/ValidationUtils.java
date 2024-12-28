@@ -43,7 +43,7 @@ public class ValidationUtils {
     }
 
     // Метод для валидации User
-    public static void validateUser(User user) {
+    public static void validateUser(User user) throws ParseException {
         LocalDate currentLocalDate = LocalDate.now();
 
         // Преобразование Date в LocalDate
@@ -59,7 +59,7 @@ public class ValidationUtils {
 
         if (user.getLogin() == null || user.getLogin().isBlank() || user.getLogin().contains(" ")) {
             log.error("Логин не может быть пустым и содержать пробелы");
-            throw new ValidationException("Логин не может быть пустым и содержать пробелы");
+            throw new ValidationException(String.format("Логин не может быть пустым и содержать пробелы"));
         }
 
         if (birthLocalDate.isAfter(currentLocalDate)) {
@@ -67,4 +67,5 @@ public class ValidationUtils {
             throw new ValidationException("Дата рождения не может быть в будущем");
         }
     }
+
 }

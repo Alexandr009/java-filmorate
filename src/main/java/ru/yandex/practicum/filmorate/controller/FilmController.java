@@ -12,7 +12,7 @@ import java.util.Collection;
 @RestController
 @RequestMapping("/films")
 public class FilmController {
-    //public final Map<Integer, Film> films = new HashMap<>();
+
     @Autowired
     public final FilmService filmService;
 
@@ -41,5 +41,29 @@ public class FilmController {
         Film newFilm = filmService.update(film);
         log.info("update film finished - " + String.valueOf(newFilm));
         return newFilm;
+    }
+
+    @PutMapping("/{id}/like/{userId}")
+    public Film setlike(@PathVariable long id, @PathVariable long userId) {
+        log.info("setlike started: id " + id + "userId -" + userId);
+        Film film = filmService.setLike(id, userId);
+        log.info("setlike finished: " + film.toString());
+        return film;
+    }
+
+    @DeleteMapping("/{id}/like/{userId}")
+    public Film deleteLike(@PathVariable long id, @PathVariable long userId) {
+        log.info("deleteLike started: id " + id + "userId -" + userId);
+        Film film = filmService.deleteLike(id, userId);
+        log.info("deleteLike finished: " + film.toString());
+        return film;
+    }
+
+    @GetMapping("/popular")
+    public Collection<Film> getPopular(@RequestParam (required = false) final Integer count) {
+        log.info("getPopular started: count " + count);
+        Collection<Film> listFilm = filmService.getPopular(count);
+        log.info("getPopular finished: " + listFilm.toString());
+        return listFilm;
     }
 }

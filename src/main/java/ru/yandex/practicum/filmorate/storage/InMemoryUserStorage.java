@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.storage;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -10,16 +11,18 @@ import java.util.List;
 @Component
 public class InMemoryUserStorage implements UserStorage {
     public HashMap <Integer, User> userMap = new HashMap<>();
-    HashMap <Integer, List<User>> userFriends = new HashMap<>();
+    public HashMap <Integer, List<User>> userFriends = new HashMap<>();
 
     @Override
     public void creat(User user) {
         userMap.put(user.getId(), user);
+        userFriends.putIfAbsent(user.getId(), new ArrayList<>());
     }
 
     @Override
-    public Collection<User> get() {
-        return null;
+    public User get(long id) {
+        User user = userMap.get((int) id);
+        return user;
     }
 
     @Override
@@ -36,4 +39,21 @@ public class InMemoryUserStorage implements UserStorage {
             userOld.setBirthday(user.getBirthday());
             return userOld;
     }
+
+    @Override
+    public void addFriends(Integer userId, User friend) {
+        userFriends.get(userId).add(friend);
+    }
+
+    @Override
+    public void deleteFriends(Integer userId, User friend) {
+        userFriends.get(userId).remove(friend);
+    }
+
+    @Override
+    public Collection<User> getFriends(long id) {
+        Collection<User> users = userFriends.get((int)id);
+        return users;
+    }
+
 }

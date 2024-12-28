@@ -28,6 +28,6 @@ public class Film {
     @JsonDeserialize(using = CustomDateDeserializer.class)
     @JsonSerialize(using = CustomDateSerializer.class)
     Date releaseDate;
-
+    Integer rating;
 
 }

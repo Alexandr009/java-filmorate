@@ -23,58 +23,58 @@ public class UserController {
 
     @GetMapping
     public Collection<User> findAll() {
-        log.info("findAll user started - " + userService.findAll().toString());
+        log.info(String.format("findAll user started - %s", userService.findAll().toString()));
         Collection<User> user = userService.findAll(); //users.values();
-        log.info("findAll user finished - " + user.toString());
+        log.info(String.format("findAll user finished - %s" + user.toString()));
         return user;
     }
 
     @PostMapping
     public User create(@RequestBody User user) throws ParseException {
-        log.info("create user started - " + String.valueOf(user));
+        log.info(String.format("create user started - %s" + String.valueOf(user)));
         User userNew = userService.create(user);
-        log.info("create user finished - " + userNew.toString());
+        log.info(String.format("create user finished - %s" + userNew.toString()));
         return user;
     }
 
     @PutMapping
     public User update(@RequestBody User user) throws ParseException {
-        log.info("update user started - " + String.valueOf(user));
+        log.info(String.format("update user started - %s" + String.valueOf(user)));
         User userNew = userService.update(user);
-        log.info("update user finished - " + String.valueOf(userNew));
+        log.info(String.format("update user finished - %s" + String.valueOf(userNew)));
         return userNew;
     }
 
     @PutMapping("/{id}/friends/{friendId}")
     public void addFriends(@PathVariable long id,
                            @PathVariable long friendId) throws ParseException {
-        log.info("addFriends started: users id - " + id + " friend id - " + friendId);
+        log.info(String.format("addFriends started: users id - %s, friend id - %s",id,friendId));
         userService.addFriends(id, friendId);
-        log.info("addFriends finished: users id - " + id + " friend id - " + friendId);
+        log.info(String.format("addFriends finished: users id - %s, friend id - %s",id,friendId));
     }
 
     @DeleteMapping("{id}/friends/{friendId}")
     public void deleteFriends(@PathVariable long id,
                               @PathVariable long friendId) {
-        log.info("deleteFriends started: users id - " + id + " friend id - " + friendId);
+        log.info(String.format("deleteFriends started: users id - %s, friend id - %s",id,friendId));
         userService.deleteFriends(id, friendId);
-        log.info("deleteFriends finished: users id - " + id + " friend id - " + friendId);
+        log.info(String.format("deleteFriends finished: users id - %s, friend id - %s",id,friendId));
     }
 
     @GetMapping("/{id}/friends")
     public Collection<User> findFriends(@PathVariable long id) {
-        log.info("findFriends started: users id - " + id);
+        log.info(String.format("findFriends started: users id - %s",id));
         Collection<User> friends = userService.getFriends(id);
-        log.info("findFriends finished: " + friends.toString());
+        log.info(String.format("findFriends finished: %s",friends.toString()));
         return friends;
     }
 
     @GetMapping("{id}/friends/common/{otherId}")
     public Collection<User> getCommonFriends(@PathVariable long id,
                                              @PathVariable long otherId) {
-        log.info("getCommonFriends started: users id - " + id + " otherId id - " + otherId);
+        log.info(String.format("getCommonFriends started: users id - %s, otherId id - %s",id,otherId));
         Collection<User> commonFriends = userService.getCommonFriends(id, otherId);
-        log.info("getCommonFriends finished: " + commonFriends.toString());
+        log.info(String.format("getCommonFriends finished: %s",commonFriends.toString()));
         return commonFriends;
     }
 }

@@ -15,25 +15,25 @@ public class ErrorHandler {
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
-    public Map<String, String> handlerNotFoundException (final NotFoundException e) {
+    public Map<String, String> handlerNotFoundException(final NotFoundException e) {
         return Map.of("error", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handlerValidationException (final ValidationException e) {
+    public Map<String, String> handlerValidationException(final ValidationException e) {
         return Map.of("error", e.getMessage());
     }
+
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
-    public Map<String, String> handlerConditionsNotMetException (final ConditionsNotMetException e) {
+    public Map<String, String> handlerConditionsNotMetException(final ConditionsNotMetException e) {
         return Map.of("error", e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.INTERNAL_SERVER_ERROR)
-    public Map<String, String> handlerRuntimeException (final RuntimeException e) {
+    public Map<String, String> handlerRuntimeException(final RuntimeException e) {
         return Map.of("error", e.getMessage());
     }
-
 }

@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}/friends/{friendId}")
-    public void addFriends (@PathVariable long id,
+    public void addFriends(@PathVariable long id,
             @PathVariable long friendId) throws ParseException {
         log.info("addFriends started: users id - " + id + "friend id -" + friendId);
         userService.addFriends(id, friendId);
@@ -54,7 +54,7 @@ public class UserController {
     }
 
     @DeleteMapping("{id}/friends/{friendId}")
-    public void deleteFriends (@PathVariable long id,
+    public void deleteFriends(@PathVariable long id,
                               @PathVariable long friendId) {
         log.info("deleteFriends started: users id - " + id + "friend id -" + friendId);
         userService.deleteFriends(id, friendId);
@@ -70,7 +70,7 @@ public class UserController {
     }
 
     @GetMapping("{id}/friends/common/{otherId}")
-    public Collection<User> getCommonFriends (@PathVariable long id,
+    public Collection<User> getCommonFriends(@PathVariable long id,
                                @PathVariable long otherId) {
         log.info("getCommonFriends started: users id - " + id + "otherId id -" + otherId);
         Collection<User> commonFriends = userService.getCommonFriends(id, otherId);

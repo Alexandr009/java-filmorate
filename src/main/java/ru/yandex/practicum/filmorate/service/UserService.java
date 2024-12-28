@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -17,9 +16,9 @@ import java.util.List;
 @Service
 public class UserService {
 
-    @Autowired
     private final InMemoryUserStorage inMemoryUserStorage;
 
+    @Autowired
     public UserService(InMemoryUserStorage inMemoryUserStorage) {
         this.inMemoryUserStorage = inMemoryUserStorage;
     }
@@ -51,71 +50,57 @@ public class UserService {
         if (inMemoryUserStorage.userMap.containsKey(user.getId())) {
             return inMemoryUserStorage.update(user);
         }
-        throw new NotFoundException(String.format("User с id = %s не найден",user.getId()));
+        throw new NotFoundException(String.format("User с id = %s не найден", user.getId()));
     }
 
-    public void addFriends (long id, long friendId) {
+    public void addFriends(long id, long friendId) {
         User userMain = inMemoryUserStorage.get(id);
         User userFriend = inMemoryUserStorage.get(friendId);
 
-        if (userMain == null ) {
-            throw new NotFoundException(String.format("User с id = %s не найден",id));
-        } else {
-            List<User> listUserFriends = inMemoryUserStorage.userFriends.get((int)id);
-            if (listUserFriends != null) {
-                User userExist = listUserFriends.stream().filter(friendObjeck -> friendObjeck.getId() == friendId)
-                        .findFirst()
-                        .orElse(null);
-                if (userExist == null) {
-                    inMemoryUserStorage.addFriends((int) id, userFriend);
-                }
-            }
+        if (userMain == null) {
+            throw new NotFoundException(String.format("User с id = %s не найден", id));
         }
+        addFriendToList(id, friendId, userFriend);
 
         if (userFriend == null) {
-            throw new NotFoundException(String.format("Friend с id = %s не найден",friendId));
-        }else {
-            List<User> listUserFriends = inMemoryUserStorage.userFriends.get((int)friendId);
-            if (listUserFriends != null) {
-                User userExist = listUserFriends.stream().filter(friendObjeck -> friendObjeck.getId() == id)
-                        .findFirst()
-                        .orElse(null);
-                if (userExist == null) {
-                    inMemoryUserStorage.addFriends((int) friendId, userMain);
-                }
+            throw new NotFoundException(String.format("Friend с id = %s не найден", friendId));
+        }
+        addFriendToList(friendId, id, userMain);
+    }
+
+    private void addFriendToList(long id, long friendId, User friend) {
+        List<User> listUserFriends = inMemoryUserStorage.userFriends.get((int) id);
+        if (listUserFriends != null) {
+            boolean friendExists = listUserFriends.stream()
+                    .anyMatch(friendObj -> friendObj.getId() == friendId);
+            if (!friendExists) {
+                inMemoryUserStorage.addFriends((int) id, friend);
             }
         }
     }
 
-    public void deleteFriends (long id, long friendId) {
+    public void deleteFriends(long id, long friendId) {
         User userMain = inMemoryUserStorage.get(id);
         User userFriend = inMemoryUserStorage.get(friendId);
 
-        if (userMain == null ) {
-            throw new NotFoundException(String.format("User с id = %s не найден",id));
-        } else {
-            List<User> listUserFriends = inMemoryUserStorage.userFriends.get((int)id);
-            if (listUserFriends != null) {
-                User userExist = listUserFriends.stream().filter(friendObjeck -> friendObjeck.getId() == friendId)
-                        .findFirst()
-                        .orElse(null);
-                if (userExist != null) {
-                    inMemoryUserStorage.deleteFriends((int) id, userFriend);
-                }
-            }
+        if (userMain == null) {
+            throw new NotFoundException(String.format("User с id = %s не найден", id));
         }
+        deleteFriendFromList(id, friendId, userFriend);
 
         if (userFriend == null) {
-            throw new NotFoundException(String.format("Friend с id = %s не найден",friendId));
-        }else {
-            List<User> listUserFriends = inMemoryUserStorage.userFriends.get((int)friendId);
-            if (listUserFriends != null) {
-                User userExist = listUserFriends.stream().filter(friendObjeck -> friendObjeck.getId() == id)
-                        .findFirst()
-                        .orElse(null);
-                if (userExist != null) {
-                    inMemoryUserStorage.deleteFriends((int) friendId, userMain);
-                }
+            throw new NotFoundException(String.format("Friend с id = %s не найден", friendId));
+        }
+        deleteFriendFromList(friendId, id, userMain);
+    }
+
+    private void deleteFriendFromList(long id, long friendId, User friend) {
+        List<User> listUserFriends = inMemoryUserStorage.userFriends.get((int) id);
+        if (listUserFriends != null) {
+            boolean friendExists = listUserFriends.stream()
+                    .anyMatch(friendObj -> friendObj.getId() == friendId);
+            if (friendExists) {
+                inMemoryUserStorage.deleteFriends((int) id, friend);
             }
         }
     }
@@ -124,37 +109,33 @@ public class UserService {
         return inMemoryUserStorage.getFriends((int) id);
     }
 
-    public Collection<User> getCommonFriends (@PathVariable long id,
-                                  @PathVariable long otherId) {
+    public Collection<User> getCommonFriends(long id, long otherId) {
         User userMain = inMemoryUserStorage.get(id);
         User userFriend = inMemoryUserStorage.get(otherId);
 
-        if (userMain == null ) {
-            throw new NotFoundException(String.format("User с id = %s не найден",id));
+        if (userMain == null) {
+            throw new NotFoundException(String.format("User с id = %s не найден", id));
         }
         if (userFriend == null) {
-            throw new NotFoundException(String.format("Friend с id = %s не найден",otherId));
+            throw new NotFoundException(String.format("Friend с id = %s не найден", otherId));
         }
-        List<User> listUser1 = inMemoryUserStorage.userFriends.get((int)id);
-        List<User> listUser2 = inMemoryUserStorage.userFriends.get((int)otherId);
 
-        if (listUser1 == null && listUser2 == null) {
+        List<User> listUser1 = inMemoryUserStorage.userFriends.get((int) id);
+        List<User> listUser2 = inMemoryUserStorage.userFriends.get((int) otherId);
+
+        if (listUser1 == null || listUser2 == null) {
             return new ArrayList<>();
         }
 
-        Collection<User> commonFriends = listUser1.stream()
+        return listUser1.stream()
                 .filter(listUser2::contains)
                 .toList();
-        return  commonFriends;
     }
 
-    // вспомогательный метод для генерации идентификатора
     private long getNextId() {
-        long currentMaxId = inMemoryUserStorage.userMap.keySet()
-                .stream()
+        return inMemoryUserStorage.userMap.keySet().stream()
                 .mapToLong(id -> id)
                 .max()
-                .orElse(0);
-        return ++currentMaxId;
+                .orElse(0) + 1;
     }
 }

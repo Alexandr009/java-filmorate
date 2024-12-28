@@ -17,11 +17,10 @@ import java.util.List;
 @Service
 public class FilmService {
 
-    @Autowired
-    public final InMemoryFilmStorage inMemoryFilmStorage;
-    @Autowired
-    public final InMemoryUserStorage inMemoryUserStorage;
+    private final InMemoryFilmStorage inMemoryFilmStorage;
+    private final InMemoryUserStorage inMemoryUserStorage;
 
+    @Autowired
     public FilmService(InMemoryFilmStorage inMemoryFilmStorage, InMemoryUserStorage inMemoryUserStorage) {
         this.inMemoryFilmStorage = inMemoryFilmStorage;
         this.inMemoryUserStorage = inMemoryUserStorage;
@@ -33,7 +32,7 @@ public class FilmService {
 
     public Film create(Film film) throws ParseException {
         ValidationUtils.validateFilm(film);
-        film.setId((int) this.getNextId());
+        film.setId((int) getNextId());
         film.setRating(0);
         inMemoryFilmStorage.create(film);
         return film;
@@ -41,7 +40,8 @@ public class FilmService {
 
     public Film update(Film film) throws ParseException {
         ValidationUtils.validateFilm(film);
-        if (film.getId() == null || film.getId().toString().equals("")) {
+
+        if (film.getId() == null || film.getId().toString().isEmpty()) {
             throw new ConditionsNotMetException("Id должен быть указан");
         }
 
@@ -49,7 +49,7 @@ public class FilmService {
             return inMemoryFilmStorage.update(film);
         }
 
-        throw new NotFoundException(String.format("Фильм с id = %s не найден",film.getId()));
+        throw new NotFoundException(String.format("Фильм с id = %s не найден", film.getId()));
     }
 
     public Film setLike(long id, long userId) {
@@ -57,18 +57,11 @@ public class FilmService {
 
         if (userMain == null) {
             throw new NotFoundException(String.format("User с id = %s не найден", id));
-        } else {
-            List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) id);
-            if (!listFilmLikes.isEmpty()) {
-                Integer like = listFilmLikes.stream().filter(lik -> lik == userId)
-                        .findFirst()
-                        .orElse(null);
-                if (like == null) {
-                    inMemoryFilmStorage.setLike((int) id, (int) userId);
-                }
-            } else {
-                inMemoryFilmStorage.setLike((int) id, (int) userId);
-            }
+        }
+
+        List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) id);
+        if (listFilmLikes.isEmpty() || listFilmLikes.stream().noneMatch(like -> like == userId)) {
+            inMemoryFilmStorage.setLike((int) id, (int) userId);
         }
 
         return inMemoryFilmStorage.get(id);
@@ -79,17 +72,13 @@ public class FilmService {
 
         if (userMain == null) {
             throw new NotFoundException(String.format("User с id = %s не найден", id));
-        } else {
-            List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) id);
-            if (!listFilmLikes.isEmpty()) {
-                Integer like = listFilmLikes.stream().filter(lik -> lik == userId)
-                        .findFirst()
-                        .orElse(null);
-                if (like != null) {
-                    inMemoryFilmStorage.deleteLike((int) id, (int) userId);
-                }
-            }
         }
+
+        List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) id);
+        if (!listFilmLikes.isEmpty() && listFilmLikes.stream().anyMatch(like -> like == userId)) {
+            inMemoryFilmStorage.deleteLike((int) id, (int) userId);
+        }
+
         return inMemoryFilmStorage.get(id);
     }
 
@@ -97,20 +86,17 @@ public class FilmService {
         if (count == null || count <= 0) {
             count = 10;
         }
-        Collection<Film> sortFilms = inMemoryFilmStorage.getAll().stream()
+
+        return inMemoryFilmStorage.getAll().stream()
                 .sorted((film1, film2) -> Integer.compare(film2.getRating(), film1.getRating()))
                 .limit(count)
                 .toList();
-        return sortFilms;
     }
 
-    // вспомогательный метод для генерации идентификатора
     private long getNextId() {
-        long currentMaxId = inMemoryFilmStorage.filmMap.keySet()
-                .stream()
+        return inMemoryFilmStorage.filmMap.keySet().stream()
                 .mapToLong(id -> id)
                 .max()
-                .orElse(0);
-        return ++currentMaxId;
+                .orElse(0) + 1;
     }
 }

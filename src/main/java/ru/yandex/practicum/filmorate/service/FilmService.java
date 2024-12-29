@@ -64,7 +64,7 @@ public class FilmService {
             inMemoryFilmStorage.setLike((int) id, (int) userId);
         }
 
-        return inMemoryFilmStorage.get(id);
+         return inMemoryFilmStorage.get(id);
     }
 
     public Film deleteLike(long id, long userId) {

@@ -23,25 +23,25 @@ public class UserController {
 
     @GetMapping
     public Collection<User> findAll() {
-        log.info(String.format("findAll user started - %s", userService.findAll().toString()));
-        Collection<User> user = userService.findAll(); //users.values();
-        log.info(String.format("findAll user finished - %s" + user.toString()));
+        log.info(String.format("findAll user started - %s",userService.findAll().toString()));
+        Collection<User> user = userService.findAll();
+        log.info(String.format("findAll user finished - %s",user.toString()));
         return user;
     }
 
     @PostMapping
     public User create(@RequestBody User user) throws ParseException {
-        log.info(String.format("create user started - %s" + String.valueOf(user)));
+        log.info(String.format("create user started - %s",String.valueOf(user)));
         User userNew = userService.create(user);
-        log.info(String.format("create user finished - %s" + userNew.toString()));
+        log.info(String.format("create user finished - %s",userNew.toString()));
         return user;
     }
 
     @PutMapping
     public User update(@RequestBody User user) throws ParseException {
-        log.info(String.format("update user started - %s" + String.valueOf(user)));
+        log.info(String.format("update user started - %s",String.valueOf(user)));
         User userNew = userService.update(user);
-        log.info(String.format("update user finished - %s" + String.valueOf(userNew)));
+        log.info(String.format("update user finished - %s",String.valueOf(userNew)));
         return userNew;
     }
 

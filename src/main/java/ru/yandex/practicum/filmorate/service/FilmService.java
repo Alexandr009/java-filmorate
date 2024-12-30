@@ -54,9 +54,14 @@ public class FilmService {
 
     public Film setLike(long id, long userId) {
         User userMain = inMemoryUserStorage.get(userId);
+        Film film = inMemoryFilmStorage.get(id);
 
         if (userMain == null) {
             throw new NotFoundException(String.format("User с id = %s не найден", id));
+        }
+
+        if (film == null) {
+            throw new RuntimeException(String.format("Film с id = %s не найден", id));
         }
 
         List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) id);
@@ -69,9 +74,14 @@ public class FilmService {
 
     public Film deleteLike(long id, long userId) {
         User userMain = inMemoryUserStorage.get(userId);
+        Film film = inMemoryFilmStorage.get(id);
 
         if (userMain == null) {
             throw new NotFoundException(String.format("User с id = %s не найден", id));
+        }
+
+        if (film == null) {
+            throw new RuntimeException(String.format("Film с id = %s не найден", id));
         }
 
         List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) id);

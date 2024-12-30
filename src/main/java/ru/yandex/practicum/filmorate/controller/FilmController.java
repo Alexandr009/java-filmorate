@@ -48,7 +48,6 @@ public class FilmController {
         log.info(String.format("setlike started: id %d userId - %d", id, userId));
         Film film = filmService.setLike(id, userId);
         log.info(String.format("setlike finished: %s", film.toString()));
-        //return film;
     }
 
     @DeleteMapping("/{id}/like/{userId}")
@@ -56,7 +55,6 @@ public class FilmController {
         log.info(String.format("deleteLike started: id %d userId - %d", id, userId));
         Film film = filmService.deleteLike(id, userId);
         log.info(String.format("deleteLike finished: %s", film.toString()));
-        //return film;
     }
 
     @GetMapping("/popular")

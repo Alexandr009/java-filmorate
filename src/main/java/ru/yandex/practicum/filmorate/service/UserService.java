@@ -57,14 +57,11 @@ public class UserService {
         User userMain = inMemoryUserStorage.get(id);
         User userFriend = inMemoryUserStorage.get(friendId);
 
-        if (userMain == null) {
-            throw new NotFoundException(String.format("User с id = %s не найден", id));
-        }
-        addFriendToList(id, friendId, userFriend);
-
         if (userFriend == null) {
-            throw new NotFoundException(String.format("Friend с id = %s не найден", friendId));
+            throw new RuntimeException(String.format("Friend с id = %s не найден", friendId));
         }
+
+        addFriendToList(id, friendId, userFriend);
         addFriendToList(friendId, id, userMain);
     }
 

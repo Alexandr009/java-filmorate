@@ -61,7 +61,7 @@ public class FilmService {
         }
 
         if (film == null) {
-            throw new RuntimeException(String.format("Film с id = %s не найден", id));
+            throw new NotFoundException(String.format("Film с id = %s не найден", id));
         }
 
         List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) id);
@@ -81,7 +81,7 @@ public class FilmService {
         }
 
         if (film == null) {
-            throw new RuntimeException(String.format("Film с id = %s не найден", id));
+            throw new NotFoundException(String.format("Film с id = %s не найден", id));
         }
 
         List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) id);

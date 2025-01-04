@@ -58,7 +58,7 @@ public class UserService {
         User userFriend = inMemoryUserStorage.get(friendId);
 
         if (userFriend == null) {
-            throw new RuntimeException(String.format("Friend с id = %s не найден", friendId));
+            throw new NotFoundException(String.format("Friend с id = %s не найден", friendId));
         }
 
         addFriendToList(id, friendId, userFriend);
@@ -103,7 +103,12 @@ public class UserService {
     }
 
     public Collection<User> getFriends(long id) {
-        return inMemoryUserStorage.getFriends((int) id);
+        Collection<User> listUserFriends = inMemoryUserStorage.userFriends.get((int) id);
+
+        if (listUserFriends == null) {
+            throw new NotFoundException(String.format("User с id = %s не найден", id));
+        }
+        return listUserFriends;
     }
 
     public Collection<User> getCommonFriends(long id, long otherId) {

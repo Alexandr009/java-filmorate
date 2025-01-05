@@ -45,20 +45,20 @@ public class UserController {
         return userNew;
     }
 
-    @PutMapping("/{id}/friends/{friend_id}")
+    @PutMapping("/{id}/friends/{friend-id}")
     public void addFriends(@PathVariable long id,
-                           @PathVariable long friend_id) throws ParseException {
-        log.info(String.format("addFriends started: users id - %s, friend id - %s",id,friend_id));
-        userService.addFriends(id, friend_id);
-        log.info(String.format("addFriends finished: users id - %s, friend id - %s",id,friend_id));
+                           @PathVariable("friend-id") long friendId) throws ParseException {
+        log.info(String.format("addFriends started: users id - %s, friend id - %s",id,friendId));
+        userService.addFriends(id, friendId);
+        log.info(String.format("addFriends finished: users id - %s, friend id - %s",id,friendId));
     }
 
-    @DeleteMapping("{id}/friends/{friend_id}")
+    @DeleteMapping("{id}/friends/{friend-id}")
     public void deleteFriends(@PathVariable long id,
-                              @PathVariable long friend_id) {
-        log.info(String.format("deleteFriends started: users id - %s, friend id - %s",id,friend_id));
-        userService.deleteFriends(id, friend_id);
-        log.info(String.format("deleteFriends finished: users id - %s, friend id - %s",id,friend_id));
+                              @PathVariable("friend-id") long friendId) {
+        log.info(String.format("deleteFriends started: users id - %s, friend id - %s",id,friendId));
+        userService.deleteFriends(id, friendId);
+        log.info(String.format("deleteFriends finished: users id - %s, friend id - %s",id,friendId));
     }
 
     @GetMapping("/{id}/friends")
@@ -69,11 +69,11 @@ public class UserController {
         return friends;
     }
 
-    @GetMapping("{id}/friends/common/{friend_id}")
+    @GetMapping("{id}/friends/common/{friend-id}")
     public Collection<User> getCommonFriends(@PathVariable long id,
-                                             @PathVariable long friend_id) {
-        log.info(String.format("getCommonFriends started: users id - %s, otherId id - %s",id,friend_id));
-        Collection<User> commonFriends = userService.getCommonFriends(id, friend_id);
+                                             @PathVariable("friend-id") long friendId) {
+        log.info(String.format("getCommonFriends started: users id - %s, otherId id - %s",id,friendId));
+        Collection<User> commonFriends = userService.getCommonFriends(id, friendId);
         log.info(String.format("getCommonFriends finished: %s",commonFriends.toString()));
         return commonFriends;
     }

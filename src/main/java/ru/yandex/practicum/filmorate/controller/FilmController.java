@@ -43,17 +43,17 @@ public class FilmController {
         return newFilm;
     }
 
-    @PutMapping("/{film_id}/like/{id}")
-    public void setlike(@PathVariable long film_id, @PathVariable long id) {
-        log.info(String.format("setlike started: film_id %d id - %d", film_id, id));
-        Film film = filmService.setLike(film_id, id);
+    @PutMapping("/{film-id}/like/{user-id}")
+    public void setlike(@PathVariable("film-id") long filmId, @PathVariable("user-id") long userId) {
+        log.info(String.format("setlike started: film_id %d id - %d", filmId, userId));
+        Film film = filmService.setLike(filmId, userId);
         log.info(String.format("setlike finished: %s", film.toString()));
     }
 
-    @DeleteMapping("/{film_id}/like/{id}")
-    public void deleteLike(@PathVariable long film_id, @PathVariable long id) {
-        log.info(String.format("deleteLike started: id %d userId - %d", film_id, id));
-        Film film = filmService.deleteLike(film_id, id);
+    @DeleteMapping("/{film-id}/like/{user-id}")
+    public void deleteLike(@PathVariable("film-id") long filmId, @PathVariable("user-id") long userId) {
+        log.info(String.format("deleteLike started: id %d userId - %d", filmId, userId));
+        Film film = filmService.deleteLike(filmId, userId);
         log.info(String.format("deleteLike finished: %s", film.toString()));
     }
 

@@ -42,7 +42,7 @@ public class UserService {
         ValidationUtils.validateUser(user);
 
         if (user.getId() == null || user.getId().toString().isBlank()) {
-            throw new ConditionsNotMetException("Id должен быть указан");
+            throw new ConditionsNotMetException("ID must be specified");
         }
         if (user.getName().isBlank()) {
             user.setName(user.getLogin());
@@ -50,7 +50,7 @@ public class UserService {
         if (inMemoryUserStorage.userMap.containsKey(user.getId())) {
             return inMemoryUserStorage.update(user);
         }
-        throw new NotFoundException(String.format("User с id = %s не найден", user.getId()));
+        throw new NotFoundException(String.format("User with id = %s not found", user.getId()));
     }
 
     public void addFriends(long id, long friendId) {
@@ -58,7 +58,7 @@ public class UserService {
         User userFriend = inMemoryUserStorage.get(friendId);
 
         if (userFriend == null) {
-            throw new NotFoundException(String.format("Friend с id = %s не найден", friendId));
+            throw new NotFoundException(String.format("User with id = %s not found", friendId));
         }
 
         addFriendToList(id, friendId, userFriend);
@@ -81,12 +81,12 @@ public class UserService {
         User userFriend = inMemoryUserStorage.get(friendId);
 
         if (userMain == null) {
-            throw new NotFoundException(String.format("User с id = %s не найден", id));
+            throw new NotFoundException(String.format("User with id = %s not found", id));
         }
         deleteFriendFromList(id, friendId, userFriend);
 
         if (userFriend == null) {
-            throw new NotFoundException(String.format("Friend с id = %s не найден", friendId));
+            throw new NotFoundException(String.format("User with id = %s not found", friendId));
         }
         deleteFriendFromList(friendId, id, userMain);
     }
@@ -103,27 +103,28 @@ public class UserService {
     }
 
     public Collection<User> getFriends(long id) {
+        User userMain = inMemoryUserStorage.get(id);
+        if (userMain == null) {
+            throw new NotFoundException(String.format("User with id = %s not found", id));
+        }
         Collection<User> listUserFriends = inMemoryUserStorage.userFriends.get((int) id);
 
-        if (listUserFriends == null) {
-            throw new NotFoundException(String.format("User с id = %s не найден", id));
-        }
         return listUserFriends;
     }
 
-    public Collection<User> getCommonFriends(long id, long otherId) {
+    public Collection<User> getCommonFriends(long id, long friendId) {
         User userMain = inMemoryUserStorage.get(id);
-        User userFriend = inMemoryUserStorage.get(otherId);
+        User userFriend = inMemoryUserStorage.get(friendId);
 
         if (userMain == null) {
-            throw new NotFoundException(String.format("User с id = %s не найден", id));
+            throw new NotFoundException(String.format("User with id = %s not found", id));
         }
         if (userFriend == null) {
-            throw new NotFoundException(String.format("Friend с id = %s не найден", otherId));
+            throw new NotFoundException(String.format("User with id = %s not found", friendId));
         }
 
         List<User> listUser1 = inMemoryUserStorage.userFriends.get((int) id);
-        List<User> listUser2 = inMemoryUserStorage.userFriends.get((int) otherId);
+        List<User> listUser2 = inMemoryUserStorage.userFriends.get((int) friendId);
 
         if (listUser1 == null || listUser2 == null) {
             return new ArrayList<>();

@@ -42,54 +42,54 @@ public class FilmService {
         ValidationUtils.validateFilm(film);
 
         if (film.getId() == null || film.getId().toString().isEmpty()) {
-            throw new ConditionsNotMetException("Id должен быть указан");
+            throw new ConditionsNotMetException("ID must be specified");
         }
 
         if (inMemoryFilmStorage.filmMap.containsKey(film.getId())) {
             return inMemoryFilmStorage.update(film);
         }
 
-        throw new NotFoundException(String.format("Фильм с id = %s не найден", film.getId()));
+        throw new NotFoundException(String.format("Film with ID = %s not found", film.getId()));
     }
 
-    public Film setLike(long id, long userId) {
-        User userMain = inMemoryUserStorage.get(userId);
-        Film film = inMemoryFilmStorage.get(id);
+    public Film setLike(long filmId, long id) {
+        User userMain = inMemoryUserStorage.get(id);
+        Film film = inMemoryFilmStorage.get(filmId);
 
         if (userMain == null) {
-            throw new NotFoundException(String.format("User с id = %s не найден", id));
+            throw new NotFoundException(String.format("User with id = %s not found", id));
         }
 
         if (film == null) {
-            throw new NotFoundException(String.format("Film с id = %s не найден", id));
+            throw new NotFoundException(String.format("Film with ID = %s not found", filmId));
         }
 
-        List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) id);
-        if (listFilmLikes.isEmpty() || listFilmLikes.stream().noneMatch(like -> like == userId)) {
-            inMemoryFilmStorage.setLike((int) id, (int) userId);
+        List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) filmId);
+        if (listFilmLikes.isEmpty() || listFilmLikes.stream().noneMatch(like -> like == id)) {
+            inMemoryFilmStorage.setLike((int) filmId, (int) id);
         }
 
-         return inMemoryFilmStorage.get(id);
+         return inMemoryFilmStorage.get(filmId);
     }
 
-    public Film deleteLike(long id, long userId) {
-        User userMain = inMemoryUserStorage.get(userId);
-        Film film = inMemoryFilmStorage.get(id);
+    public Film deleteLike(long filmId, long id) {
+        User userMain = inMemoryUserStorage.get(id);
+        Film film = inMemoryFilmStorage.get(filmId);
 
         if (userMain == null) {
-            throw new NotFoundException(String.format("User с id = %s не найден", id));
+            throw new NotFoundException(String.format("User with id = %s not found", id));
         }
 
         if (film == null) {
-            throw new NotFoundException(String.format("Film с id = %s не найден", id));
+            throw new NotFoundException(String.format("Film with ID = %s not found", filmId));
         }
 
-        List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) id);
-        if (!listFilmLikes.isEmpty() && listFilmLikes.stream().anyMatch(like -> like == userId)) {
-            inMemoryFilmStorage.deleteLike((int) id, (int) userId);
+        List<Integer> listFilmLikes = inMemoryFilmStorage.filmLikes.get((int) filmId);
+        if (!listFilmLikes.isEmpty() && listFilmLikes.stream().anyMatch(like -> like == id)) {
+            inMemoryFilmStorage.deleteLike((int) filmId, (int) id);
         }
 
-        return inMemoryFilmStorage.get(id);
+        return inMemoryFilmStorage.get(filmId);
     }
 
     public Collection<Film> getPopular(Integer count) {

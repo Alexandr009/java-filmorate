@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 @Data
-public class Мpa {
+public class Mpa {
     Integer id;
     String name;
 }

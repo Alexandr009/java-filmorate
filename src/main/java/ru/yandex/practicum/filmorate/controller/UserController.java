@@ -8,6 +8,7 @@ import ru.yandex.practicum.filmorate.service.UserService;
 
 import java.text.ParseException;
 import java.util.Collection;
+import java.util.Optional;
 
 @Slf4j
 @RestController
@@ -29,12 +30,18 @@ public class UserController {
         return user;
     }
 
+    @GetMapping("/{id}")
+    public Optional<Optional<User>> getUserById(@PathVariable long id) {
+        log.info("getUserById started - %s - " + id);
+        return Optional.ofNullable(userService.getUserById(id));
+    }
+
     @PostMapping
     public User create(@RequestBody User user) throws ParseException {
         log.info(String.format("create user started - %s",String.valueOf(user)));
         User userNew = userService.create(user);
         log.info(String.format("create user finished - %s",userNew.toString()));
-        return user;
+        return userNew;
     }
 
     @PutMapping

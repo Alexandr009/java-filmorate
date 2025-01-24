@@ -13,6 +13,7 @@ import ru.yandex.practicum.filmorate.validation.ValidationUtils;
 import java.text.ParseException;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class FilmService {
@@ -53,10 +54,10 @@ public class FilmService {
     }
 
     public Film setLike(long filmId, long id) {
-        User userMain = inMemoryUserStorage.get(id);
+        Optional<User> userMain = inMemoryUserStorage.get(id);
         Film film = inMemoryFilmStorage.get(filmId);
 
-        if (userMain == null) {
+        if (userMain.isEmpty()) {
             throw new NotFoundException(String.format("User with id = %s not found", id));
         }
 
@@ -73,10 +74,10 @@ public class FilmService {
     }
 
     public Film deleteLike(long filmId, long id) {
-        User userMain = inMemoryUserStorage.get(id);
+        Optional<User> userMain = inMemoryUserStorage.get(id);
         Film film = inMemoryFilmStorage.get(filmId);
 
-        if (userMain == null) {
+        if (userMain.isEmpty()) {
             throw new NotFoundException(String.format("User with id = %s not found", id));
         }
 

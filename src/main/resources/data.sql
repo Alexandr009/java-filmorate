@@ -1,23 +1,14 @@
-merge into mpa (id,name)
-    value (1,'G');
-merge into mpa (id,name)
-    value (2,'PG');
-merge into mpa (id,name)
-    value (3,'PG-13');
-merge into mpa (id,name)
-    value (4,'R');
-merge into mpa (id,name)
-    value (5,'NC-17');
+MERGE INTO mpa (id, name)
+VALUES
+(1, 'G'),
+(2, 'PG'),
+(3, 'PG-13'),
+(4, 'R'),
+(5, 'NC-17');
 
-merge into genre (id,name)
-    value (1,'Комедия');
-merge into genre (id,name)
-    value (2,'Драма');
-merge into genre (id,name)
-    value (3,'Мультфильм');
-merge into genre (id,name)
-    value (4,'Триллер');
-merge into genre (id,name)
-    value (5,'Документальный');
-merge into genre (id,name)
-    value (6,'Боевик');
+MERGE INTO genre (id, name) VALUES (1, 'Комедия');
+MERGE INTO genre (id, name) VALUES (2, 'Драма');
+MERGE INTO genre (id, name) VALUES (3, 'Мультфильм');
+MERGE INTO genre (id, name) VALUES (4, 'Триллер');
+MERGE INTO genre (id, name) VALUES (5, 'Документальный');
+MERGE INTO genre (id, name) VALUES (6, 'Боевик');

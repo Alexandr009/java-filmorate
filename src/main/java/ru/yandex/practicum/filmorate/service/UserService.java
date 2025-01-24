@@ -6,37 +6,48 @@ import ru.yandex.practicum.filmorate.exception.ConditionsNotMetException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 import ru.yandex.practicum.filmorate.validation.ValidationUtils;
 
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
+    @Autowired
+    private UserDbStorage userDbStorage;
 
     private final InMemoryUserStorage inMemoryUserStorage;
 
     @Autowired
     public UserService(InMemoryUserStorage inMemoryUserStorage) {
         this.inMemoryUserStorage = inMemoryUserStorage;
+        this.userDbStorage = userDbStorage;
     }
 
     public Collection<User> findAll() {
-        return inMemoryUserStorage.getAll();
+        return userDbStorage.getAll();
+        //return inMemoryUserStorage.getAll();
     }
 
+    public Optional<User> getUserById(long id){
+        return userDbStorage.get(id);
+    }
     public User create(User user) throws ParseException {
         ValidationUtils.validateUser(user);
 
-        user.setId((int) getNextId());
+        //user.setId((int) getNextId());
         if (user.getName() == null) {
             user.setName(user.getLogin());
         }
-        inMemoryUserStorage.creat(user);
-        return user;
+        User newUser = userDbStorage.creat(user);
+        return newUser;
     }
+
+
 
     public User update(User user) throws ParseException {
         ValidationUtils.validateUser(user);
@@ -47,22 +58,26 @@ public class UserService {
         if (user.getName().isBlank()) {
             user.setName(user.getLogin());
         }
-        if (inMemoryUserStorage.userMap.containsKey(user.getId())) {
-            return inMemoryUserStorage.update(user);
+        Optional<User> newUser = userDbStorage.get(user.getId());
+        if (!newUser.isEmpty()) {
+            return userDbStorage.update(user);
         }
+//        if (inMemoryUserStorage.userMap.containsKey(user.getId())) {
+//            return inMemoryUserStorage.update(user);
+//        }
         throw new NotFoundException(String.format("User with id = %s not found", user.getId()));
     }
 
     public void addFriends(long id, long friendId) {
-        User userMain = inMemoryUserStorage.get(id);
-        User userFriend = inMemoryUserStorage.get(friendId);
+        Optional<User> userMain = inMemoryUserStorage.get(id);
+        Optional<User> userFriend = inMemoryUserStorage.get(friendId);
 
-        if (userFriend == null) {
+        if (userFriend.isEmpty()) {
             throw new NotFoundException(String.format("User with id = %s not found", friendId));
         }
 
-        addFriendToList(id, friendId, userFriend);
-        addFriendToList(friendId, id, userMain);
+        addFriendToList(id, friendId, userFriend.orElse(null));
+        addFriendToList(friendId, id, userMain.orElse(null));
     }
 
     private void addFriendToList(long id, long friendId, User friend) {
@@ -77,18 +92,18 @@ public class UserService {
     }
 
     public void deleteFriends(long id, long friendId) {
-        User userMain = inMemoryUserStorage.get(id);
-        User userFriend = inMemoryUserStorage.get(friendId);
+        Optional<User> userMain = inMemoryUserStorage.get(id);
+        Optional<User> userFriend = inMemoryUserStorage.get(friendId);
 
-        if (userMain == null) {
+        if (userMain.isEmpty()) {
             throw new NotFoundException(String.format("User with id = %s not found", id));
         }
-        deleteFriendFromList(id, friendId, userFriend);
+        deleteFriendFromList(id, friendId, userFriend.orElse(null));
 
-        if (userFriend == null) {
+        if (userFriend.isEmpty()) {
             throw new NotFoundException(String.format("User with id = %s not found", friendId));
         }
-        deleteFriendFromList(friendId, id, userMain);
+        deleteFriendFromList(friendId, id, userMain.orElse(null));
     }
 
     private void deleteFriendFromList(long id, long friendId, User friend) {
@@ -103,8 +118,8 @@ public class UserService {
     }
 
     public Collection<User> getFriends(long id) {
-        User userMain = inMemoryUserStorage.get(id);
-        if (userMain == null) {
+        Optional<User> userMain = inMemoryUserStorage.get(id);
+        if (userMain.isEmpty()) {
             throw new NotFoundException(String.format("User with id = %s not found", id));
         }
         Collection<User> listUserFriends = inMemoryUserStorage.userFriends.get((int) id);
@@ -113,13 +128,13 @@ public class UserService {
     }
 
     public Collection<User> getCommonFriends(long id, long friendId) {
-        User userMain = inMemoryUserStorage.get(id);
-        User userFriend = inMemoryUserStorage.get(friendId);
+        Optional<User> userMain = inMemoryUserStorage.get(id);
+        Optional<User> userFriend = inMemoryUserStorage.get(friendId);
 
-        if (userMain == null) {
+        if (userMain.isEmpty()) {
             throw new NotFoundException(String.format("User with id = %s not found", id));
         }
-        if (userFriend == null) {
+        if (userFriend.isEmpty()) {
             throw new NotFoundException(String.format("User with id = %s not found", friendId));
         }
 

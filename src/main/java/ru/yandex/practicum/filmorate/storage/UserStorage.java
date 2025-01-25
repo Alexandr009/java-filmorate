@@ -14,9 +14,9 @@ public interface UserStorage {
 
     public User update(User user);
 
-    public void addFriends(Integer userId, User friend);
+    public void addFriends(Integer userId, Integer friendId);
 
-    public void deleteFriends(Integer userId, User friend);
+    public void deleteFriends(Integer userId, Integer friendId);
 
     public Collection<User> getFriends(long id);
 }

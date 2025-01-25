@@ -16,9 +16,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film get(long id) {
+    public Optional<Film> get(long id) {
         Film film = filmMap.get((int) id);
-        return film;
+        return Optional.ofNullable(film);
     }
 
     @Override
@@ -39,18 +39,18 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Film setLike(Integer id, Integer userId) {
+    public Optional<Film> setLike(Integer id, Integer userId) {
         filmLikes.get(id).add(userId);
         filmMap.get(id).setRating(filmMap.get(id).getRating() + 1);
         Film film = filmMap.get(id);
-        return film;
+        return Optional.ofNullable(film);
     }
 
     @Override
-    public Film deleteLike(Integer id, Integer userId) {
+    public Optional<Film> deleteLike(Integer id, Integer userId) {
         filmLikes.get(id).remove(userId);
         filmMap.get(id).setRating(filmMap.get(id).getRating() - 1);
         Film film = filmMap.get(id);
-        return film;
+        return Optional.ofNullable(film);
     }
 }

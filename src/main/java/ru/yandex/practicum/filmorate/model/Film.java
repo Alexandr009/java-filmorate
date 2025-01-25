@@ -12,6 +12,7 @@ import ru.yandex.practicum.filmorate.deserializer.CustomDurationSerializer;
 
 import java.time.Duration;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @Setter
@@ -29,5 +30,6 @@ public class Film {
     @JsonSerialize(using = CustomDateSerializer.class)
     Date releaseDate;
     Integer rating;
-
+    Mpa mpa;
+    List<Genre> genres;
 }

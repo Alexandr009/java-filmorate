@@ -1,20 +1,15 @@
 package ru.yandex.practicum.filmorate.storage;
 
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.mapper.UserRowMapper;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.sql.PreparedStatement;
-import java.sql.Statement;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -64,7 +59,6 @@ public class UserDbStorage implements UserStorage {
         String sqlRequest = "SELECT * FROM users";
         List<User> results = jdbc.query(sqlRequest, mapper);
         return results;
-        //return List.of();
     }
 
     @Override
@@ -81,19 +75,59 @@ public class UserDbStorage implements UserStorage {
         return result;
     }
 
-    @Override
-    public void addFriends(Integer userId, User friend) {
-
+    public void addFriends(Integer userId, Integer friendId) {
+        String sqlRequest = "INSERT INTO friends (id_user, id_friends, friendship_status) " +
+                "VALUES(?,?,?)";
+        jdbc.update(sqlRequest,
+                userId,
+                friendId,
+                false);
+        jdbc.update(sqlRequest,
+                friendId,
+                userId,
+                true);
     }
 
     @Override
-    public void deleteFriends(Integer userId, User friend) {
-
+    public void deleteFriends(Integer userId, Integer friendId) {
+        String sqlRequest = "DELETE FROM friends WHERE id_user = ? AND id_friends = ?";
+        jdbc.update(sqlRequest, userId, friendId);
+        //jdbc.update(sqlRequest, friendId, userId);
+        //String sqlRequest2 = "UPDATE friends SET friendship_status = true WHERE id_friends = ? AND id_user = ?";
+        //jdbc.update(sqlRequest2, userId, friendId);
     }
 
     @Override
     public Collection<User> getFriends(long id) {
-        return List.of();
+        String sqlRequest = "SELECT us.id,\n" +
+                "       us.email,\n" +
+                "       us.login,\n" +
+                "       us.name,\n" +
+                "       us.birthday\n" +
+                "FROM users AS us\n" +
+                "INNER JOIN friends AS f on us.id = f.id_user\n" +
+                "WHERE f.friendship_status = true\n" +
+                "        AND id_friends = ?";
+        List<User> results = jdbc.query(sqlRequest, mapper,id);
+        return results;
+    }
+
+    public List<User> getCommonFriends(long idUser, long idOtherUser) {
+        String sqlRequest = "SELECT us.id,\n" +
+                "       us.email,\n" +
+                "       us.login,\n" +
+                "       us.name,\n" +
+                "       us.birthday\n" +
+                "FROM users AS us\n" +
+                "INNER JOIN friends AS f on us.id = f.id_user\n" +
+                "WHERE  us.id IN (SELECT fr.id_user\n" +
+                "                        FROM friends AS fr\n" +
+                "                        WHERE fr.id_friends = ?\n" +
+                "                                AND fr.friendship_status = true)\n" +
+                "        AND f.id_friends = ? AND friendship_status = true";
+        List<User> results = jdbc.query(sqlRequest, mapper,idUser,idOtherUser);
+        return results;
+        //return jdbcTemplate.query(sqlRequest, (rs, rowNum) -> userDbStorage.makeUser(rs), idUser, idOtherUser);
     }
 
 }

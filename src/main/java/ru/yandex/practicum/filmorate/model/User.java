@@ -24,7 +24,7 @@ public class User {
     @JsonSerialize(using = CustomDateSerializer.class)
     Date birthday;
     //
-    Set<Long> friendsId;
-    Set<Long> likesFilmsId;
+    //Set<Long> friendsId;
+    //Set<Long> likesFilmsId;
 
 }

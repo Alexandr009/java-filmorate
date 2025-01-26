@@ -53,14 +53,14 @@ public class FilmService {
 
         Optional<Mpa> mpa = mpaDbStorage.getMpaById(film.getMpa().getId());
         if (mpa.isEmpty()) {
-            throw new ConditionsNotMetException(String.format("MPA with id = %s not found", film.getMpa().getId()));
+            throw new NotFoundException(String.format("MPA with id = %s not found", film.getMpa().getId()));
         }
 
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             for (Genre genre : film.getGenres()) {
                 Optional<Genre> genreOptional = genreDbStorage.getGenreById(genre.getId());
                 if (genreOptional.isEmpty()) {
-                    throw new ConditionsNotMetException(String.format("Genre with id = %s not found", genre.getId()));
+                    throw new NotFoundException(String.format("Genre with id = %s not found", genre.getId()));
                 }
             }
         }

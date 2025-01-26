@@ -58,7 +58,7 @@ public class FilmDbStorage implements FilmStorage {
                 "       m.id AS mpa_id, " +
                 "       m.name AS mpa_name " +
                 "FROM films AS fi " +
-                "INNER JOIN mpa AS m ON m.id = fi.id_mpa " +
+                "INNER JOIN mpa AS m ON fi.id_mpa = m.id " +
                 "WHERE fi.id = ?";
 
         List<Film> films = jdbc.query(sqlRequest, mapper, id);
@@ -109,7 +109,17 @@ public class FilmDbStorage implements FilmStorage {
                 film.getDuration(),
                 film.getMpa().getId());
 
-        SqlRowSet sqlRowSet = jdbc.queryForRowSet("SELECT ID FROM FILMS WHERE NAME = ?", film.getName());
+        SqlRowSet sqlRowSet = jdbc.queryForRowSet(
+                "SELECT ID " +
+                        "FROM FILMS " +
+                        "WHERE NAME = ? " +
+                        "AND description = ? " +
+                        "AND id_mpa = ?",
+                film.getName(),
+                film.getDescription(),
+                film.getMpa().getId()
+        );
+
         if (sqlRowSet.next()) {
             film.setId((int) sqlRowSet.getLong("id"));
         }

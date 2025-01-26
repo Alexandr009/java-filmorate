@@ -11,14 +11,9 @@ public class InMemoryUserStorage implements UserStorage {
     public HashMap<Integer, List<User>> userFriends = new HashMap<>();
 
     @Override
-    //public void creat(User user) {
     public User creat(User user) {
         return null;
     }
-        //public void creat(User user) {
-        //userMap.put(user.getId(), user);
-        //userFriends.putIfAbsent(user.getId(), new ArrayList<>());
-    //}
 
     @Override
     public Optional<User> get(long id) {
@@ -43,12 +38,10 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public void addFriends(Integer userId, Integer friendId) {
-        //userFriends.get(userId).add(friendId);
     }
 
     @Override
     public void deleteFriends(Integer userId, Integer friendId) {
-        //userFriends.get(userId).remove(friend);
     }
 
     @Override

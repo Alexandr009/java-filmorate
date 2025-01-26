@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.mapper.MpaRowMapper;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,7 +38,6 @@ public class MpaDbStorage {
 
     public List<Mpa> getMpa() {
         String sqlRequest = "SELECT * FROM mpa";
-        //return jdbc.query(sqlRequest, (rs, rowNum) -> makeMpa(rs));
         List<Mpa> results = jdbc.query(sqlRequest, mapper);
         return results;
     }

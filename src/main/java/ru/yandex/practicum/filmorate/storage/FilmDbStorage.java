@@ -32,16 +32,13 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getAll() {
-//        String query = "SELECT * FROM FILMS";
-//        List<Film> results = jdbc.query(query, mapper);
-//        return results;
         String sqlRequest = "SELECT f.id,\n" +
                 "       f.name,\n" +
                 "       f.description,\n" +
                 "       f.release_date,\n" +
                 "       f.duration,\n" +
                 "       f.id_mpa,\n" +
-                "       mp.name\n" +
+                "       mp.name as mpa_name\n" +
                 "FROM films AS f\n" +
                 "INNER JOIN mpa AS mp on mp.id = f.id_mpa";
         List<Film> resultFilmList = jdbc.query(sqlRequest, mapper);
@@ -67,25 +64,20 @@ public class FilmDbStorage implements FilmStorage {
         List<Film> films = jdbc.query(sqlRequest, mapper, id);
 
         if (films.isEmpty()) {
-            return Optional.empty(); // Если фильм не найден
+            return Optional.empty();
         }
 
-        // Получаем единственный фильм
         Film film = films.get(0);
-        ///
-    // Создайте объект Mpa, если он существует
-// Если id_mpa не null (не 0), то создаем объект Mpa и добавляем его в фильм
+
         if (film.getMpa() != null) {
             Mpa mpa = new Mpa();
-            mpa.setId(film.getMpa().getId()); // Извлекаем mpa_id
-            mpa.setName(film.getMpa().getName()); // Извлекаем mpa_name
+            mpa.setId(film.getMpa().getId());
+            mpa.setName(film.getMpa().getName());
             film.setMpa(mpa);
         } else {
-            film.setMpa(null); // Если mpa отсутствует, устанавливаем null
+            film.setMpa(null);
         }
-        //
 
-        // SQL-запрос для получения жанров фильма
         String genreQuery = "SELECT g.id AS genre_id, " +
                 "       g.name AS genre_name " +
                 "FROM genre_films AS gf " +
@@ -93,55 +85,16 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE gf.id_film = ?";
 
         List<Genre> genres = jdbc.query(genreQuery, (rs, rowNum) -> {
-            Genre genre = new Genre(); // Используем конструктор без параметров
-            genre.setId(rs.getInt("genre_id")); // Устанавливаем id жанра
-            genre.setName(rs.getString("genre_name")); // Устанавливаем имя жанра
+            Genre genre = new Genre();
+            genre.setId(rs.getInt("genre_id"));
+            genre.setName(rs.getString("genre_name"));
             return genre;
         }, id);
 
-        // Добавляем жанры к фильму
         film.setGenres(genres);
 
         return Optional.of(film);
-        /*
-            String sqlRequest = "SELECT fi.id, " +
-                    "       fi.name, " +
-                    "       fi.description, " +
-                    "       fi.release_date, " +
-                    "       fi.duration, " +
-                    "       fi.id_mpa, " +
-                    "       m.id AS mpa_id, " +
-                    "       m.name AS mpa_name " +
-                    "FROM films AS fi " +
-                    "INNER JOIN mpa AS m ON m.id = fi.id_mpa " +
-                    "WHERE fi.id = ?";
 
-            List<Film> films = jdbc.query(sqlRequest, mapper, id);
-
-            if (films.isEmpty()) {
-                return Optional.empty(); // Если фильм не найден
-            }
-
-            // Получаем единственный фильм
-            Film film = films.get(0);
-
-            // SQL-запрос для получения жанров фильма
-            String genreQuery = "SELECT g.id AS genre_id, " +
-                    "       g.name AS genre_name " +
-                    "FROM genre_films AS gf " +
-                    "INNER JOIN genre AS g ON gf.id_genre = g.id " +
-                    "WHERE gf.id_film = ?";
-
-            List<Genre> genres = jdbc.query(genreQuery, (rs, rowNum) -> new Genre(
-                    rs.getInt("genre_id"),
-                    rs.getString("genre_name")
-            ), id);
-
-            // Добавляем жанры к фильму
-            film.setGenres(genres);
-
-            return Optional.of(film);
-*/
     }
 
     @Override
@@ -162,6 +115,7 @@ public class FilmDbStorage implements FilmStorage {
         if (film.getGenres() != null) {
             newListGenre = setGenres(film);
         }
+
         Film filmToReturn = new Film();
         filmToReturn.setId(film.getId());
         filmToReturn.setName(film.getName());
@@ -222,13 +176,26 @@ public class FilmDbStorage implements FilmStorage {
         return filmToReturn;
     }
     private List<Genre> setGenres(Film film) {
+//        List<Genre> newListGenre = new ArrayList<>();
+//        String sqlRequestForGenreCreate = "INSERT INTO GENRE_FILMS (ID_FILM, ID_GENRE) VALUES ( ?,? )";
+//        for (Genre genre : film.getGenres()) {
+//            if (checkGenreIDTable(film.getId(), genre.getId())) {
+//                jdbc.update(sqlRequestForGenreCreate,
+//                        film.getId(),
+//                        genre.getId());
+//                newListGenre.add(genre);
+//            }
+//        }
         List<Genre> newListGenre = new ArrayList<>();
-        String sqlRequestForGenreCreate = "INSERT INTO GENRE_FILMS (ID_FILM, ID_GENRE) VALUES ( ?,? )";
+        String sqlRequestForGenreCreate = "INSERT INTO GENRE_FILMS (ID_FILM, ID_GENRE) VALUES (?, ?)";
+        String sqlCheckGenreExistence = "SELECT COUNT(*) FROM GENRE_FILMS WHERE ID_FILM = ? AND ID_GENRE = ?";
+
         for (Genre genre : film.getGenres()) {
-            if (checkGenreIDTable(film.getId(), genre.getId())) {
-                jdbc.update(sqlRequestForGenreCreate,
-                        film.getId(),
-                        genre.getId());
+            // Проверка, существует ли уже такая запись в таблице GENRE_FILMS
+            int count = jdbc.queryForObject(sqlCheckGenreExistence, Integer.class, film.getId(), genre.getId());
+
+            if (count == 0) { // Если запись не найдена, добавляем жанр
+                jdbc.update(sqlRequestForGenreCreate, film.getId(), genre.getId());
                 newListGenre.add(genre);
             }
         }
@@ -250,17 +217,14 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     public void setGenreToFilms(List<Film> films) {
-        /*
-        // Проверка на null или пустой список
+
         if (films == null || films.isEmpty()) {
             return;
         }
 
-        // Создаем Map для быстрого поиска фильмов по их ID
         Map<Integer, Film> filmMap = films.stream()
                 .collect(Collectors.toMap(Film::getId, film -> film));
 
-        // Запрос для получения жанров для фильмов
         String sql = "SELECT f.id AS id_film, " +
                 "       g.id AS id_genre, " +
                 "       g.name AS name_genre " +
@@ -269,12 +233,10 @@ public class FilmDbStorage implements FilmStorage {
                 "INNER JOIN genre AS g ON gf.id_genre = g.id " +
                 "WHERE f.id IN (:filmIds)";
 
-        // Получаем список ID фильмов для фильтрации
         List<Integer> filmIds = films.stream()
                 .map(Film::getId)
                 .collect(Collectors.toList());
 
-        // Выполняем запрос с фильтрацией по ID фильмов
         MapSqlParameterSource parameters = new MapSqlParameterSource();
         parameters.addValue("filmIds", filmIds);
 
@@ -282,70 +244,19 @@ public class FilmDbStorage implements FilmStorage {
         try {
             sqlRowSetGenres = jdbc.queryForRowSet(sql, parameters);
         } catch (DataAccessException e) {
-            // Логируем и завершаем выполнение метода в случае ошибки
             System.err.println("Error executing SQL query: " + e.getMessage());
             return;
         }
 
-        // Заполняем жанры для фильмов
         while (sqlRowSetGenres.next()) {
             int filmId = sqlRowSetGenres.getInt("id_film");
-            Film film = filmMap.get(filmId); // Ищем фильм по ID в Map
+            Film film = filmMap.get(filmId);
 
             if (film != null) {
-                Genre genre = new Genre(
-                        sqlRowSetGenres.getInt("id_genre"),
-                        sqlRowSetGenres.getString("name_genre")
-                );
+                Genre genre = new Genre();
+                genre.setId(sqlRowSetGenres.getInt("id_genre"));
+                genre.setName(sqlRowSetGenres.getString("name_genre"));
                 film.getGenres().add(genre);
-            }
-        }*/
-
-        if (films == null || films.isEmpty()) {
-            return;
-        }
-
-        // Создаем Map для быстрого поиска фильмов по их ID
-        Map<Integer, Film> filmMap = films.stream()
-                .collect(Collectors.toMap(Film::getId, film -> film));
-
-        // Запрос для получения жанров для фильмов
-        String sql = "SELECT f.id AS id_film, " +
-                "       g.id AS id_genre, " +
-                "       g.name AS name_genre " +
-                "FROM films AS f " +
-                "INNER JOIN genre_films AS gf ON f.id = gf.id_film " +
-                "INNER JOIN genre AS g ON gf.id_genre = g.id " +
-                "WHERE f.id IN (:filmIds)";
-
-        // Получаем список ID фильмов для фильтрации
-        List<Integer> filmIds = films.stream()
-                .map(Film::getId)
-                .collect(Collectors.toList());
-
-        // Выполняем запрос с фильтрацией по ID фильмов
-        MapSqlParameterSource parameters = new MapSqlParameterSource();
-        parameters.addValue("filmIds", filmIds);
-
-        SqlRowSet sqlRowSetGenres;
-        try {
-            sqlRowSetGenres = jdbc.queryForRowSet(sql, parameters);
-        } catch (DataAccessException e) {
-            // Логируем и завершаем выполнение метода в случае ошибки
-            System.err.println("Error executing SQL query: " + e.getMessage());
-            return;
-        }
-
-        // Заполняем жанры для фильмов
-        while (sqlRowSetGenres.next()) {
-            int filmId = sqlRowSetGenres.getInt("id_film");
-            Film film = filmMap.get(filmId); // Ищем фильм по ID в Map
-
-            if (film != null) {
-                Genre genre = new Genre(); // Используем конструктор без параметров
-                genre.setId(sqlRowSetGenres.getInt("id_genre")); // Устанавливаем id жанра
-                genre.setName(sqlRowSetGenres.getString("name_genre")); // Устанавливаем имя жанра
-                film.getGenres().add(genre); // Добавляем жанр в список жанров фильма
             }
         }
     }
@@ -357,14 +268,13 @@ public class FilmDbStorage implements FilmStorage {
                 "       fi.release_date,\n" +
                 "       fi.duration,\n"+
                 "       fi.id_mpa,\n" +
-                "       m.name\n" +
+                "       m.name as mpa_name\n" +
                 "FROM films AS fi\n" +
                 "INNER JOIN likes_films AS lf on fi.id = lf.id_films\n" +
                 "INNER JOIN mpa AS m on fi.id_mpa = m.id\n" +
                 "GROUP BY fi.id\n" +
                 "ORDER BY COUNT(lf.id_films) DESC\n" +
                 "LIMIT ?";
-        //Collection<Film> films = jdbc.query(sqlRequest, mapper);
         Collection<Film> films = jdbc.query(sqlRequest, new Object[]{count}, mapper);
         setGenreToFilms((List<Film>) films);
         if(films.isEmpty()) {

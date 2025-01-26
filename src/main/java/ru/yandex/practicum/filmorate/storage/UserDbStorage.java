@@ -36,7 +36,6 @@ public class UserDbStorage implements UserStorage {
                 user.getLogin(),
                 user.getName(),
                 user.getBirthday());
-        String sqlWhereIdUser = "SELECT id FROM users WHERE email = ?";
         String query = "SELECT * FROM users WHERE email = ?";
         User result = jdbc.queryForObject(query, mapper, user.getEmail());
 
@@ -92,9 +91,6 @@ public class UserDbStorage implements UserStorage {
     public void deleteFriends(Integer userId, Integer friendId) {
         String sqlRequest = "DELETE FROM friends WHERE id_user = ? AND id_friends = ?";
         jdbc.update(sqlRequest, userId, friendId);
-        //jdbc.update(sqlRequest, friendId, userId);
-        //String sqlRequest2 = "UPDATE friends SET friendship_status = true WHERE id_friends = ? AND id_user = ?";
-        //jdbc.update(sqlRequest2, userId, friendId);
     }
 
     @Override
@@ -127,7 +123,6 @@ public class UserDbStorage implements UserStorage {
                 "        AND f.id_friends = ? AND friendship_status = true";
         List<User> results = jdbc.query(sqlRequest, mapper,idUser,idOtherUser);
         return results;
-        //return jdbcTemplate.query(sqlRequest, (rs, rowNum) -> userDbStorage.makeUser(rs), idUser, idOtherUser);
     }
 
 }

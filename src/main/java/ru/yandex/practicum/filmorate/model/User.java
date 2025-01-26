@@ -9,7 +9,6 @@ import ru.yandex.practicum.filmorate.deserializer.CustomDateDeserializer;
 import ru.yandex.practicum.filmorate.deserializer.CustomDateSerializer;
 
 import java.util.Date;
-import java.util.Set;
 
 @Getter
 @Setter
@@ -23,8 +22,5 @@ public class User {
     @JsonDeserialize(using = CustomDateDeserializer.class)
     @JsonSerialize(using = CustomDateSerializer.class)
     Date birthday;
-    //
-    //Set<Long> friendsId;
-    //Set<Long> likesFilmsId;
 
 }

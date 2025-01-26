@@ -114,6 +114,8 @@ public class FilmDbStorage implements FilmStorage {
             film.setId((int) sqlRowSet.getLong("id"));
         }
 
+        String sqlRequestForGenreDelete = "DELETE FROM GENRE_FILMS WHERE ID_FILM = ?";
+        jdbc.update(sqlRequestForGenreDelete, film.getId());
         if (film.getGenres() != null) {
             newListGenre = setGenres(film);
         }

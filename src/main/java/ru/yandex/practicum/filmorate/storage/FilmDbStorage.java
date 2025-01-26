@@ -176,29 +176,35 @@ public class FilmDbStorage implements FilmStorage {
         return filmToReturn;
     }
     private List<Genre> setGenres(Film film) {
+        List<Genre> newListGenre = new ArrayList<>();
+        String sqlRequestForGenreCreate = "INSERT INTO GENRE_FILMS (ID_FILM, ID_GENRE) VALUES ( ?,? )";
+        for (Genre genre : film.getGenres()) {
+            System.out.println("genre.getId() = " + genre.getId());
+            System.out.println("newListGenre.toString() = " + newListGenre.toString());
+            boolean isDuplicate = newListGenre.stream()
+                    .anyMatch(g -> g.getId() == genre.getId());
+            if (!isDuplicate) {
+                if (checkGenreIDTable(film.getId(), genre.getId())) {
+                    jdbc.update(sqlRequestForGenreCreate,
+                            film.getId(),
+                            genre.getId());
+                    newListGenre.add(genre);
+                }
+            }
+        }
 //        List<Genre> newListGenre = new ArrayList<>();
-//        String sqlRequestForGenreCreate = "INSERT INTO GENRE_FILMS (ID_FILM, ID_GENRE) VALUES ( ?,? )";
+//        String sqlRequestForGenreCreate = "INSERT INTO GENRE_FILMS (ID_FILM, ID_GENRE) VALUES (?, ?)";
+//        String sqlCheckGenreExistence = "SELECT COUNT(*) FROM GENRE_FILMS WHERE ID_FILM = ? AND ID_GENRE = ?";
+//
 //        for (Genre genre : film.getGenres()) {
-//            if (checkGenreIDTable(film.getId(), genre.getId())) {
-//                jdbc.update(sqlRequestForGenreCreate,
-//                        film.getId(),
-//                        genre.getId());
+//            // Проверка, существует ли уже такая запись в таблице GENRE_FILMS
+//            int count = jdbc.queryForObject(sqlCheckGenreExistence, Integer.class, film.getId(), genre.getId());
+//
+//            if (count == 0) { // Если запись не найдена, добавляем жанр
+//                jdbc.update(sqlRequestForGenreCreate, film.getId(), genre.getId());
 //                newListGenre.add(genre);
 //            }
 //        }
-        List<Genre> newListGenre = new ArrayList<>();
-        String sqlRequestForGenreCreate = "INSERT INTO GENRE_FILMS (ID_FILM, ID_GENRE) VALUES (?, ?)";
-        String sqlCheckGenreExistence = "SELECT COUNT(*) FROM GENRE_FILMS WHERE ID_FILM = ? AND ID_GENRE = ?";
-
-        for (Genre genre : film.getGenres()) {
-            // Проверка, существует ли уже такая запись в таблице GENRE_FILMS
-            int count = jdbc.queryForObject(sqlCheckGenreExistence, Integer.class, film.getId(), genre.getId());
-
-            if (count == 0) { // Если запись не найдена, добавляем жанр
-                jdbc.update(sqlRequestForGenreCreate, film.getId(), genre.getId());
-                newListGenre.add(genre);
-            }
-        }
         return newListGenre;
     }
 

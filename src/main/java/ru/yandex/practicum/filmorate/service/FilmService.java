@@ -47,10 +47,20 @@ public class FilmService {
         if (mpa.isEmpty()) {
             throw new ValidationException(String.format("mpa with id = %s not found", film.getMpa().getId()));
         }
-        Optional<Genre> genre = genreDbStorage.getGenreById(film.getGenres().getFirst().getId());
-        if (genre.isEmpty()) {
-            throw new ValidationException(String.format("genre with id = %s not found", film.getMpa().getId()));
+//        Optional<Genre> genre = genreDbStorage.getGenreById(film.getGenres().getFirst().getId());
+//        if (genre.isEmpty()) {
+//            throw new ValidationException(String.format("genre with id = %s not found", film.getMpa().getId()));
+//        }
+
+        if (film.getGenres() != null && !film.getGenres().isEmpty()) {
+            for (Genre genre : film.getGenres()) {
+                Optional<Genre> genreOptional = genreDbStorage.getGenreById(genre.getId());
+                if (genreOptional.isEmpty()) {
+                    throw new ValidationException(String.format("Genre with id = %s not found", genre.getId()));
+                }
+            }
         }
+
         filmDbStorage.create(film);
         return film;
     }

@@ -14,8 +14,7 @@ import java.util.Optional;
 @Slf4j
 public class GenreService {
 
-    @Autowired
-    private GenreDbStorage genreDbStorage;
+    private final GenreDbStorage genreDbStorage;
 
     @Autowired
     public GenreService(GenreDbStorage genreDbStorage) {
@@ -25,7 +24,7 @@ public class GenreService {
     public Genre getGenreById(int id) {
         Optional<Genre> genre = genreDbStorage.getGenreById(id);
         if (genre.isEmpty()) {
-            throw new NotFoundException(String.format("genre with id = %s not found", id));
+            throw new NotFoundException(String.format("Genre with id = %s not found", id));
         }
         return genre.orElse(null);
     }
@@ -33,5 +32,4 @@ public class GenreService {
     public List<Genre> getGenre() {
         return genreDbStorage.getGenre();
     }
-
 }

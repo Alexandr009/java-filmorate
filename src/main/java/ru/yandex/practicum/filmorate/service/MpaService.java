@@ -14,8 +14,7 @@ import java.util.Optional;
 @Slf4j
 public class MpaService {
 
-    @Autowired
-    private MpaDbStorage mpaDbStorage;
+    private final MpaDbStorage mpaDbStorage;
 
     @Autowired
     public MpaService(MpaDbStorage mpaDbStorage) {
@@ -25,7 +24,7 @@ public class MpaService {
     public Mpa getMpaById(int id) {
         Optional<Mpa> mpa = mpaDbStorage.getMpaById(id);
         if (mpa.isEmpty()) {
-            throw new NotFoundException(String.format("mpa with id = %s not found", id));
+            throw new NotFoundException(String.format("MPA with id = %s not found", id));
         }
         return mpa.orElse(null);
     }
@@ -33,5 +32,4 @@ public class MpaService {
     public List<Mpa> getMpa() {
         return mpaDbStorage.getMpa();
     }
-
 }

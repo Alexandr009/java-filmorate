@@ -17,6 +17,7 @@ import java.util.Optional;
 @Slf4j
 @Repository
 public class UserDbStorage implements UserStorage {
+
     private final JdbcTemplate jdbc;
     private final UserRowMapper mapper;
 
@@ -25,7 +26,6 @@ public class UserDbStorage implements UserStorage {
         this.mapper = mapper;
         this.jdbc = jdbc;
     }
-
 
     @Override
     public User creat(User user) {
@@ -37,9 +37,7 @@ public class UserDbStorage implements UserStorage {
                 user.getName(),
                 user.getBirthday());
         String query = "SELECT * FROM users WHERE email = ?";
-        User result = jdbc.queryForObject(query, mapper, user.getEmail());
-
-        return result;
+        return jdbc.queryForObject(query, mapper, user.getEmail());
     }
 
     @Override
@@ -56,8 +54,7 @@ public class UserDbStorage implements UserStorage {
     @Override
     public Collection<User> getAll() {
         String sqlRequest = "SELECT * FROM users";
-        List<User> results = jdbc.query(sqlRequest, mapper);
-        return results;
+        return jdbc.query(sqlRequest, mapper);
     }
 
     @Override
@@ -70,21 +67,14 @@ public class UserDbStorage implements UserStorage {
                 user.getBirthday(),
                 user.getId());
         String query = "SELECT * FROM users WHERE id = ?";
-        User result = jdbc.queryForObject(query, mapper, user.getId());
-        return result;
+        return jdbc.queryForObject(query, mapper, user.getId());
     }
 
     public void addFriends(Integer userId, Integer friendId) {
         String sqlRequest = "INSERT INTO friends (id_user, id_friends, friendship_status) " +
                 "VALUES(?,?,?)";
-        jdbc.update(sqlRequest,
-                userId,
-                friendId,
-                false);
-        jdbc.update(sqlRequest,
-                friendId,
-                userId,
-                true);
+        jdbc.update(sqlRequest, userId, friendId, false);
+        jdbc.update(sqlRequest, friendId, userId, true);
     }
 
     @Override
@@ -104,8 +94,7 @@ public class UserDbStorage implements UserStorage {
                 "INNER JOIN friends AS f on us.id = f.id_user\n" +
                 "WHERE f.friendship_status = true\n" +
                 "        AND id_friends = ?";
-        List<User> results = jdbc.query(sqlRequest, mapper,id);
-        return results;
+        return jdbc.query(sqlRequest, mapper, id);
     }
 
     public List<User> getCommonFriends(long idUser, long idOtherUser) {
@@ -116,13 +105,11 @@ public class UserDbStorage implements UserStorage {
                 "       us.birthday\n" +
                 "FROM users AS us\n" +
                 "INNER JOIN friends AS f on us.id = f.id_user\n" +
-                "WHERE  us.id IN (SELECT fr.id_user\n" +
+                "WHERE us.id IN (SELECT fr.id_user\n" +
                 "                        FROM friends AS fr\n" +
                 "                        WHERE fr.id_friends = ?\n" +
                 "                                AND fr.friendship_status = true)\n" +
                 "        AND f.id_friends = ? AND friendship_status = true";
-        List<User> results = jdbc.query(sqlRequest, mapper,idUser,idOtherUser);
-        return results;
+        return jdbc.query(sqlRequest, mapper, idUser, idOtherUser);
     }
-
 }

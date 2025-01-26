@@ -11,6 +11,7 @@ import java.time.Duration;
 
 @Component
 public class FilmRowMapper implements RowMapper<Film> {
+
     @Override
     public Film mapRow(ResultSet resultSet, int rowNum) throws SQLException {
         Film film = new Film();
@@ -29,6 +30,7 @@ public class FilmRowMapper implements RowMapper<Film> {
         } else {
             film.setMpa(null);
         }
+
         return film;
     }
 }

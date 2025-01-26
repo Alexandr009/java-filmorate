@@ -9,7 +9,10 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.*;
+import ru.yandex.practicum.filmorate.storage.FilmDbStorage;
+import ru.yandex.practicum.filmorate.storage.GenreDbStorage;
+import ru.yandex.practicum.filmorate.storage.MpaDbStorage;
+import ru.yandex.practicum.filmorate.storage.UserDbStorage;
 import ru.yandex.practicum.filmorate.validation.ValidationUtils;
 
 import java.text.ParseException;
@@ -18,14 +21,19 @@ import java.util.Optional;
 
 @Service
 public class FilmService {
-    private FilmDbStorage filmDbStorage;
-    private UserDbStorage userDbStorage;
-    private MpaDbStorage mpaDbStorage;
-    private GenreDbStorage genreDbStorage;
 
+    private final FilmDbStorage filmDbStorage;
+    private final UserDbStorage userDbStorage;
+    private final MpaDbStorage mpaDbStorage;
+    private final GenreDbStorage genreDbStorage;
 
     @Autowired
-    public FilmService(FilmDbStorage filmDbStorage, UserDbStorage userDbStorage, MpaDbStorage mpaDbStorage,GenreDbStorage genreDbStorage) {
+    public FilmService(
+            FilmDbStorage filmDbStorage,
+            UserDbStorage userDbStorage,
+            MpaDbStorage mpaDbStorage,
+            GenreDbStorage genreDbStorage
+    ) {
         this.filmDbStorage = filmDbStorage;
         this.userDbStorage = userDbStorage;
         this.mpaDbStorage = mpaDbStorage;
@@ -36,21 +44,18 @@ public class FilmService {
         return filmDbStorage.getAll();
     }
 
-    public Optional<Film> getFilmById(long id){
+    public Optional<Film> getFilmById(long id) {
         return filmDbStorage.get(id);
     }
 
     public Film create(Film film) throws ParseException {
         ValidationUtils.validateFilm(film);
         film.setRating(0);
+
         Optional<Mpa> mpa = mpaDbStorage.getMpaById(film.getMpa().getId());
         if (mpa.isEmpty()) {
-            throw new ValidationException(String.format("mpa with id = %s not found", film.getMpa().getId()));
+            throw new ValidationException(String.format("MPA with id = %s not found", film.getMpa().getId()));
         }
-//        Optional<Genre> genre = genreDbStorage.getGenreById(film.getGenres().getFirst().getId());
-//        if (genre.isEmpty()) {
-//            throw new ValidationException(String.format("genre with id = %s not found", film.getMpa().getId()));
-//        }
 
         if (film.getGenres() != null && !film.getGenres().isEmpty()) {
             for (Genre genre : film.getGenres()) {
@@ -72,45 +77,45 @@ public class FilmService {
             throw new ConditionsNotMetException("ID must be specified");
         }
 
-        Optional<Film> newFilm = filmDbStorage.get(film.getId());
-        if (!newFilm.isEmpty()) {
-            return filmDbStorage.update(film);
+        Optional<Film> existingFilm = filmDbStorage.get(film.getId());
+        if (existingFilm.isEmpty()) {
+            throw new NotFoundException(String.format("Film with ID = %s not found", film.getId()));
         }
 
-        throw new NotFoundException(String.format("Film with ID = %s not found", film.getId()));
+        return filmDbStorage.update(film);
     }
 
-    public Optional<Optional<Film>> setLike(long filmId, long id) {
-
-        Optional<User> userMain = userDbStorage.get(id);
+    public Optional<Optional<Film>> setLike(long filmId, long userId) {
+        Optional<User> user = userDbStorage.get(userId);
         Optional<Film> film = filmDbStorage.get(filmId);
 
-        if (userMain.isEmpty()) {
-            throw new NotFoundException(String.format("User with id = %s not found", id));
+        if (user.isEmpty()) {
+            throw new NotFoundException(String.format("User with id = %s not found", userId));
         }
 
         if (film.isEmpty()) {
             throw new NotFoundException(String.format("Film with ID = %s not found", filmId));
         }
 
-        return Optional.ofNullable(filmDbStorage.setLike((int) filmId, (int) id));
+        return Optional.ofNullable(filmDbStorage.setLike((int) filmId, (int) userId));
     }
 
-    public Optional<Optional<Film>> deleteLike(long filmId, long id) {;
-        Optional<User> userMain = userDbStorage.get(id);
+    public Optional<Optional<Film>> deleteLike(long filmId, long userId) {
+        Optional<User> user = userDbStorage.get(userId);
         Optional<Film> film = filmDbStorage.get(filmId);
-        if (userMain.isEmpty()) {
-            throw new NotFoundException(String.format("User with id = %s not found", id));
+
+        if (user.isEmpty()) {
+            throw new NotFoundException(String.format("User with id = %s not found", userId));
         }
 
         if (film.isEmpty()) {
             throw new NotFoundException(String.format("Film with ID = %s not found", filmId));
         }
-        return Optional.ofNullable(filmDbStorage.deleteLike((int) filmId, (int) id));
+
+        return Optional.ofNullable(filmDbStorage.deleteLike((int) filmId, (int) userId));
     }
 
     public Collection<Film> getPopular(Integer count) {
         return filmDbStorage.getPopularFilms(count);
     }
-
 }

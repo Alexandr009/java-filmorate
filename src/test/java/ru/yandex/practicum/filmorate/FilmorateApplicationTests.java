@@ -90,7 +90,7 @@ class FilmorateApplicationTests {
 	@Test
 	public void testAddFriends() {
 		userServiceDb.addFriends(1, 2);
-		List<User> friends = (List<User>) userServiceDb.getFriends(1); // Приведение к List<User> убрано
+		List<User> friends = (List<User>) userServiceDb.getFriends(1);
 		assertEquals(1, friends.size());
 		assertThat(friends.get(0))
 				.hasFieldOrPropertyWithValue("id", 2);
@@ -99,7 +99,7 @@ class FilmorateApplicationTests {
 	@Test
 	public void testLikeFilm() {
 		filmServiceDb.setLike(1, 1);
-		List<Film> popularFilms = (List<Film>) filmServiceDb.getPopular(1); // Приведение к List<Film> убрано
+		List<Film> popularFilms = (List<Film>) filmServiceDb.getPopular(1);
 		assertThat(popularFilms).isNotEmpty();
 		assertThat(popularFilms.get(0))
 				.hasFieldOrPropertyWithValue("id", 1);

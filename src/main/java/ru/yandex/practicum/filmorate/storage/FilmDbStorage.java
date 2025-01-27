@@ -244,7 +244,7 @@ public class FilmDbStorage implements FilmStorage {
         try {
             sqlRowSetGenres = jdbc.queryForRowSet(sql, parameters);
         } catch (DataAccessException e) {
-            log.error("Error executing SQL query: " + e.getMessage());
+            log.error(String.format("Error executing SQL query: ", e.getMessage()));
             return;
         }
 

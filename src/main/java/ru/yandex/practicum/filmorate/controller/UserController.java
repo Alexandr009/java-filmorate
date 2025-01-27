@@ -32,7 +32,7 @@ public class UserController {
 
     @GetMapping("/{id}")
     public Optional<Optional<User>> getUserById(@PathVariable long id) {
-        log.info("getUserById started - %s - " + id);
+        log.info(String.format("getUserById started - %s - ", id));
         return Optional.ofNullable(userService.getUserById(id));
     }
 

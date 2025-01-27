@@ -30,7 +30,7 @@ public class FilmController {
 
     @GetMapping("/{id}")
     public Optional<Optional<Film>> getFilmById(@PathVariable long id) {
-        log.info("getFilmById started - %s - " + id);
+        log.info(String.format("getFilmById started - %s - ", id));
         return Optional.ofNullable(filmService.getFilmById(id));
     }
 
